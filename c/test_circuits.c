@@ -5,5 +5,5 @@ int main(int argc, char** argv) {
 
     init();
 
-    Z_runZ_vv();
+    Z_runZ_iv();
 }

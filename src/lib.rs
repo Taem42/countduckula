@@ -10,7 +10,6 @@ use sapling_crypto_ce::circuit::{
     sha256::sha256,
 };
 use sha2::{Digest, Sha256};
-use wasm_bindgen::prelude::{wasm_bindgen, JsValue};
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -86,8 +85,12 @@ fn combine(amount: u128, nonce: u128) -> [u8; 32] {
     bytes
 }
 
-#[wasm_bindgen]
-pub fn run() -> Result<(), JsValue> {
+fn main() {
+    run();
+}
+
+#[no_mangle]
+pub fn run() -> u8 {
     let mut os_rng = OsRng::new().expect("os rng");
 
     let params = {
@@ -116,6 +119,9 @@ pub fn run() -> Result<(), JsValue> {
     let vk = groth16::prepare_verifying_key(&params.vk);
     let proof = groth16::create_random_proof(c, &params, &mut os_rng).expect("create proof");
 
-    assert!(groth16::verify_proof(&vk, &proof, &inputs).expect("verify"));
-    Ok(())
+    if groth16::verify_proof(&vk, &proof, &inputs).expect("verify") {
+        0
+    } else {
+        1
+    }
 }
